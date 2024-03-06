@@ -8,12 +8,12 @@ MainButtonTask::MainButtonTask(int pin, MQTTHandlerTask& mqttHandler)
 {
 }
 
+//These are backwards due to pullup
 void MainButtonTask::ButtonPressed()
 {
-  mqttTask.publishMyColor();
 }
 
 void MainButtonTask::ButtonReleased()
 {
-
+  mqttTask.publishMyColor();
 }

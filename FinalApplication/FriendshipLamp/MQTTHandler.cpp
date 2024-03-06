@@ -1,5 +1,6 @@
 #include "MQTTHandler.h"
 #include "Config.h"
+#include "LEDManager.h"
 
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
@@ -57,22 +58,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
     //LED color message
     if(length >= 7 && payload[0] == '#')
     {
-      char buffer[3];
-      buffer[2] = 0;
-
-      buffer[0] = payload[1];
-      buffer[1] = payload[2];
-      uint8_t red = strtoul(buffer, 0, 16);
-      buffer[0] = payload[3];
-      buffer[1] = payload[4];
-      uint8_t green = strtoul(buffer, 0, 16);
-      buffer[0] = payload[5];
-      buffer[1] = payload[6];
-      uint8_t blue = strtoul(buffer, 0, 16);
-      Serial.print("got the color #");
-      Serial.print(red, HEX);
-      Serial.print(green, HEX);
-      Serial.println(blue, HEX);
+      Serial.println("Looks like color");
+      SetLEDColor((char*)payload);
     }
   }
 }
@@ -132,7 +119,8 @@ void MQTTHandlerTask::publishMyColor()
   if(client.connected())
   {
     String mqttTopic(mqtt_topic_prefix);
-    mqttTopic += "/" + ESP.getChipId();
+    mqttTopic += "/";
+    mqttTopic.concat(ESP.getChipId());
     client.publish(mqttTopic.c_str(), my_led_color);
   }
 }

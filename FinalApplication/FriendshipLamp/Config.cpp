@@ -49,12 +49,37 @@ bool ReadConfig()
         if(!deserializerError)
         {
           Serial.println("\nparsed json");
-          strcpy(mqtt_server, json[MQTT_SERVER_JSON]);
-          strcpy(mqtt_user, json[MQTT_USER_JSON]);
-          strcpy(mqtt_password, json[MQTT_PASSWORD_JSON]);
-          strcpy(my_led_color, json[LED_COLOR_JSON]);
-          strcpy(mqtt_topic_prefix, json[MQTT_TOPIC_PREFIX_JSON]);
-          retVal = true;
+
+          const char* server_json_value = json[MQTT_SERVER_JSON];
+          if(server_json_value)
+          {
+            strcpy(mqtt_server, server_json_value);
+          }
+
+          const char* user_json_value = json[MQTT_USER_JSON];
+          if(user_json_value)
+          {
+            strcpy(mqtt_user, user_json_value);
+          }
+
+          const char* password_json_value = json[MQTT_PASSWORD_JSON];
+          if(password_json_value)
+          {
+            strcpy(mqtt_password, password_json_value);
+          }
+
+          const char* led_json_value = json[LED_COLOR_JSON];
+          if(led_json_value)
+          {
+            strcpy(my_led_color, led_json_value);
+          }
+
+          const char* topic_json_value = json[MQTT_TOPIC_PREFIX_JSON];
+          if(topic_json_value)
+          {
+            strcpy(mqtt_topic_prefix, json[MQTT_TOPIC_PREFIX_JSON]);
+          }
+          retVal = server_json_value && user_json_value && password_json_value && led_json_value && topic_json_value;
         }
         else
         {
@@ -104,11 +129,6 @@ void MyWiFiConfiguration(bool forceConfig)
 
   WiFiManager wifiManager;
 
-  if(forceConfig)
-  {
-    wifiManager.resetSettings();
-  }
-
   wifiManager.setSaveConfigCallback(saveConfigCallback);
   wifiManager.setAPStaticIPConfig(IPAddress(10,0,1,99), IPAddress(10,0,1,1), IPAddress(255,255,255,0));
 
@@ -123,11 +143,21 @@ void MyWiFiConfiguration(bool forceConfig)
   WiFiManagerParameter custom_led_color("ledColor", "LED Color", my_led_color, COLOR_STR_LEN, "type='color'");
   wifiManager.addParameter(&custom_led_color);
 
+  wifiManager.setShowPassword(true);
+
+  if(forceConfig)
+  {
+    Serial.println("Forced manual config");
+    wifiManager.startConfigPortal("FriendshipLampAP", "password");
+  }
+  else
+  {
   if(!wifiManager.autoConnect("FriendshipLampAP", "password")) {
     Serial.println("failed to connect and hit timeout");
     delay(3000);
     ESP.restart();
     delay(5000);
+  }
   }
 
   strcpy(mqtt_server, custom_mqtt_server.getValue());
@@ -139,4 +169,5 @@ void MyWiFiConfiguration(bool forceConfig)
   if(shouldSaveConfig) {
     SaveConfig();
   }
+  SPIFFS.end();
 }

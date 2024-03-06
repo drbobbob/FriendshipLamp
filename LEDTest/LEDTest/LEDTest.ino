@@ -11,6 +11,7 @@ CRGB leds[NUM_LEDS];
 void setup() {
   // put your setup code here, to run once:
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.setBrightness(100);
 }
 
 void loop() {

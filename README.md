@@ -4,11 +4,16 @@ Configuration is all done though WiFiManager.h
 
 Dependencies:
 ArduinoJson by Benoit Blanchon 7.0.3
-FastLED by Daniel Garcia 3.6.0
+Adafruit NeoPixel 1.12.0
 PubSubClient by Nick O'Leary 2.8
 WiFiManager by tzapu 2.0.17
 
 esp8266 board files 3.1.2
+
+
+Note that FastLED by Daniel Garcia 3.6.0 has issues with SPIFFS and writing the leds properly, the internet claimed (and was correct) that Adafruit's library works properly
+
+Note that it would be nice to get an update to the WiFiManager to fix the issue that you have to always enter password for wifi
 
 
 Wiring for final app:
