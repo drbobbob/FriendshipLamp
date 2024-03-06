@@ -3,7 +3,7 @@
 #include <ArduinoJson.h>
 
 
-#define CONFIG_PATH "/config.json"
+#define CONFIG_PATH "/config2.json"
 
 #define MQTT_SERVER_JSON "mqtt_server"
 #define MQTT_PORT_JSON "mqtt_port"
@@ -17,16 +17,17 @@
 #define COLOR_STR_LEN 8
 #define MQTT_TOPIC_PREFIX_LEN 20
 
-char mqtt_server[MQTT_SERVER_LEN];
-char mqtt_user[MQTT_AUTH_LEN];
-char mqtt_password[MQTT_AUTH_LEN];
+char mqtt_server[MQTT_SERVER_LEN] = "none";
+char mqtt_user[MQTT_AUTH_LEN] = "none";
+char mqtt_password[MQTT_AUTH_LEN] = "none";
 char my_led_color[COLOR_STR_LEN] = "#00ff00";
-char mqtt_topic_prefix[MQTT_TOPIC_PREFIX_LEN];
+char mqtt_topic_prefix[MQTT_TOPIC_PREFIX_LEN] = "none";
 
 bool shouldSaveConfig = false;
 
-void ReadConfig()
+bool ReadConfig()
 {
+  bool retVal = false;
   Serial.println("mounting FS...");
 
   if(SPIFFS.begin()) {
@@ -53,6 +54,7 @@ void ReadConfig()
           strcpy(mqtt_password, json[MQTT_PASSWORD_JSON]);
           strcpy(my_led_color, json[LED_COLOR_JSON]);
           strcpy(mqtt_topic_prefix, json[MQTT_TOPIC_PREFIX_JSON]);
+          retVal = true;
         }
         else
         {
@@ -61,10 +63,15 @@ void ReadConfig()
         configFile.close();
       }
     }
+    else
+    {
+      Serial.println("No config file");
+    }
   }
   else {
     Serial.println("failed to mount FS");
   }
+  return retVal;
 }
 
 void SaveConfig()
@@ -77,7 +84,7 @@ void SaveConfig()
     json[LED_COLOR_JSON] = my_led_color;
     json[MQTT_TOPIC_PREFIX_JSON] = mqtt_topic_prefix;
 
-    File configFile = SPIFFS.open("/config.json", "w");
+    File configFile = SPIFFS.open(CONFIG_PATH, "w");
     if(!configFile){
       Serial.println("failed to open config file for writing");
     }
@@ -92,7 +99,7 @@ void saveConfigCallback()
   shouldSaveConfig = true;
 }
 
-void WiFiConfiguration(bool forceConfig)
+void MyWiFiConfiguration(bool forceConfig)
 {
 
   WiFiManager wifiManager;
@@ -103,7 +110,7 @@ void WiFiConfiguration(bool forceConfig)
   }
 
   wifiManager.setSaveConfigCallback(saveConfigCallback);
-  wifiManager.setSTAStaticIPConfig(IPAddress(10,0,1,99), IPAddress(10,0,1,1), IPAddress(255,255,255,0));
+  wifiManager.setAPStaticIPConfig(IPAddress(10,0,1,99), IPAddress(10,0,1,1), IPAddress(255,255,255,0));
 
   WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqtt_server, MQTT_SERVER_LEN);
   wifiManager.addParameter(&custom_mqtt_server);
