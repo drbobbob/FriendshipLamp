@@ -70,6 +70,7 @@ void setup() {
 
   MyWiFiConfiguration(forceConfig);
 
+  SetLEDColor("#0000FF");
   NTPSetup();
   mqttTask.SetupMQTTHandling();
 

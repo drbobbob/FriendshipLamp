@@ -2,7 +2,7 @@
 
 #include <Adafruit_NeoPixel.h>
 
-#define NUM_LEDS 6
+#define NUM_LEDS 5
 
 // This is "pin 5" but labeled on the board as D1
 #define LED_PIN 5
